@@ -12,7 +12,7 @@ export default class Camera extends THREE.PerspectiveCamera {
 
     this.resize();
 
-    this.position.set(0, 200, 200);
+    this.position.set(0, 500, 500);
     this.lookAt(0, 0, 0);
   }
 

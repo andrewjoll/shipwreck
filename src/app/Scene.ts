@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import Config from './Config';
 
 export default class Scene extends THREE.Scene {
   constructor() {
@@ -11,10 +12,10 @@ export default class Scene extends THREE.Scene {
 
   createGrid() {
     const grid = new THREE.GridHelper(
-      1024,
-      32,
-      new THREE.Color(0xffffff),
-      new THREE.Color(0xaaaaaa)
+      Config.WORLD_SIZE * 2,
+      Config.WORLD_RESOLUTION * 2,
+      new THREE.Color(0xaaaaaa),
+      new THREE.Color(0x999999)
     );
 
     this.add(grid);

@@ -7,6 +7,7 @@ import Camera from './app/Camera';
 import Scene from './app/Scene';
 import Controls from './app/Controls';
 import Terrain from './app/Terrain';
+import Water from './app/Water';
 
 const renderer = new Renderer();
 
@@ -14,19 +15,19 @@ const camera = new Camera(renderer);
 
 const scene = new Scene();
 
-const loader = new THREE.ImageLoader();
+const terrain = new Terrain();
+scene.add(terrain);
 
-loader.load(
-  require('./assets/height-32-test.png').default,
-  (image) => {
-    const terrain = new Terrain(image);
-    scene.add(terrain);
-  },
-  undefined,
-  function (event) {
-    console.log(event);
-  }
-);
+const water = new Water();
+scene.add(water);
+
+const hemiLight = new THREE.HemisphereLight(0xfcffd1, 0xa8a08e, 0.5);
+hemiLight.position.set(0, 100, 100);
+scene.add(hemiLight);
+
+const light = new THREE.DirectionalLight(0xffffff, 0.5);
+light.position.set(100, 100, 100);
+scene.add(light);
 
 const controls = new Controls(camera, renderer.domElement);
 
