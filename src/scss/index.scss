@@ -2,3 +2,35 @@ body {
   margin: 0;
   padding: 0;
 }
+
+.debug {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.5);
+  font-family: sans-serif;
+  font-size: 10px;
+  color: white;
+  margin: 0;
+  width: 250px;
+  border-radius: 0 0 0 5px;
+  padding: 10px;
+
+  li:not(:last-child) {
+    margin-bottom: 5px;
+  }
+
+  span {
+    display: inline-block;
+    margin-right: 5px;
+    width: 100px;
+    font-weight: 700;
+    opacity: 0.5;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+  }
+}

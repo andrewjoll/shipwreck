@@ -1,6 +1,7 @@
 import './scss/index.scss';
 
 import * as THREE from 'three';
+import Debug from './app/helpers/Debug';
 
 import Renderer from './app/Renderer';
 import Camera from './app/Camera';
@@ -8,12 +9,13 @@ import Scene from './app/Scene';
 import Controls from './app/Controls';
 import Terrain from './app/Terrain';
 import Water from './app/Water';
+import Mouse from './app/Mouse';
 
 const renderer = new Renderer();
 
 const camera = new Camera(renderer);
-
 const scene = new Scene();
+const mouse = new Mouse(scene);
 
 const terrain = new Terrain();
 scene.add(terrain);
@@ -37,6 +39,7 @@ const update = () => {
   renderer.preRender();
 
   controls.update();
+  mouse.update(scene, camera);
 
   renderer.render(scene, camera);
 

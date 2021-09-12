@@ -2,7 +2,9 @@ import * as THREE from 'three';
 import Config from './Config';
 import { SimplifyModifier } from 'three/examples/jsm/modifiers/SimplifyModifier';
 import ImprovedNoise from './ImprovedNoise';
+import * as Easing from './helpers/Easing';
 // import { SimplifyModifier } from './SimplifyModifier';
+import Debug from './helpers/Debug';
 
 export default class Terrain extends THREE.Mesh {
   constructor() {
@@ -36,11 +38,23 @@ export default class Terrain extends THREE.Mesh {
       );
     }
 
+    this.layers.enable(10);
+
     // const modifier = new SimplifyModifier();
     // this.geometry = modifier.modify(
     //   geometry,
     //   geometry.attributes.position.count * 0.5
     // );
+
+    this.addDebugFields();
+  }
+
+  addDebugFields() {
+    const folder = Debug.addFolder('Terrain');
+
+    folder.addMonitor(this.geometry.attributes.position, 'count', {
+      label: 'Vertices',
+    });
   }
 
   generateHeight(width: number) {
@@ -84,19 +98,6 @@ export default class Terrain extends THREE.Mesh {
     const offsetY = Math.random() * 1000;
     const amplitude = randomBetween(8, 12);
 
-    function easeInOutCubic(x: number): number {
-      return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
-    }
-
-    function easeInQuart(x: number): number {
-      return x * x * x * x;
-    }
-
-    function smoothstep(min: number, max: number, value: number) {
-      var x = Math.max(0, Math.min(1, (value - min) / (max - min)));
-      return x * x * (3 - 2 * x);
-    }
-
     for (let i = 0; i < size; i++) {
       const x = i % width;
       const y = ~~(i / width);
@@ -114,13 +115,13 @@ export default class Terrain extends THREE.Mesh {
         Math.sin((x + offsetX) / frequencyX) *
         Math.cos((y + offsetY) / frequencyY) *
         amplitude *
-        easeInOutCubic(normalisedDistance);
+        Easing.easeInOutCubic(normalisedDistance);
 
       distance = distance / width;
 
-      const minLand = 0.2 - smoothstep(0.4, 0.5, distance);
+      const minLand = 0.2 - Easing.smoothStep(0.4, 0.5, distance);
 
-      const mask = minLand + easeInOutCubic(1 - distance * 3.5);
+      const mask = minLand + Easing.easeInOutCubic(1 - distance * 3.5);
 
       // data[i] = Math.max(mask * targetHeight, 0);
 
