@@ -5,8 +5,3 @@ export const easeInOutCubic = (x: number): number => {
 export const easeInQuart = (x: number): number => {
   return x * x * x * x;
 };
-
-export const smoothStep = (min: number, max: number, value: number) => {
-  const x = Math.max(0, Math.min(1, (value - min) / (max - min)));
-  return x * x * (3 - 2 * x);
-};

@@ -2,7 +2,8 @@ import './scss/index.scss';
 
 import * as THREE from 'three';
 import Debug from './app/helpers/Debug';
-
+import Event from './app/helpers/Event';
+import { Pathfinding } from 'three-pathfinding';
 import Renderer from './app/Renderer';
 import Camera from './app/Camera';
 import Scene from './app/Scene';
@@ -15,10 +16,48 @@ const renderer = new Renderer();
 
 const camera = new Camera(renderer);
 const scene = new Scene();
-const mouse = new Mouse(scene);
+
+Debug.setScene(scene);
 
 const terrain = new Terrain();
 scene.add(terrain);
+
+const navMesh = terrain.getNavMesh();
+
+scene.add(navMesh);
+scene.add(terrain.getHelpers());
+
+const mouse = new Mouse(scene, terrain);
+
+let clickLocations: THREE.Vector3[] = [];
+
+Event.on('terrain:click', (event) => {
+  Debug.addMarker(event.position);
+
+  clickLocations.push(event.position);
+
+  if (Debug.markers.length === 2) {
+    const startGroup = pathfinding.getGroup('island', clickLocations[0]);
+
+    const path = pathfinding.findPath(
+      clickLocations[0],
+      clickLocations[1],
+      'island',
+      startGroup
+    );
+
+    path.unshift(clickLocations[0]);
+
+    Debug.addPath(path);
+  } else if (Debug.markers.length > 2) {
+    Debug.clearMarkers();
+    Debug.clearPath();
+    clickLocations = [];
+  }
+});
+
+const pathfinding = new Pathfinding();
+pathfinding.setZoneData('island', Pathfinding.createZone(navMesh.geometry));
 
 const water = new Water();
 scene.add(water);
@@ -39,7 +78,7 @@ const update = () => {
   renderer.preRender();
 
   controls.update();
-  mouse.update(scene, camera);
+  mouse.update(camera);
 
   renderer.render(scene, camera);
 

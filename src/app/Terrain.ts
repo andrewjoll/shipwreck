@@ -1,23 +1,36 @@
 import * as THREE from 'three';
 import Config from './Config';
 import { SimplifyModifier } from 'three/examples/jsm/modifiers/SimplifyModifier';
-import ImprovedNoise from './ImprovedNoise';
-import * as Easing from './helpers/Easing';
-// import { SimplifyModifier } from './SimplifyModifier';
-import Debug from './helpers/Debug';
+import { ImprovedNoise } from 'three/examples/jsm/math/ImprovedNoise';
+import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper';
 
-export default class Terrain extends THREE.Mesh {
+import * as Easing from './helpers/Easing';
+import Debug from './helpers/Debug';
+import {
+  BufferAttribute,
+  Color,
+  MathUtils,
+  Mesh,
+  MeshStandardMaterial,
+  PlaneGeometry,
+  Vector2,
+  Vector3,
+} from 'three';
+
+export default class Terrain extends Mesh {
   constructor() {
-    let geometry = new THREE.PlaneGeometry(
+    let geometry = new PlaneGeometry(
       Config.WORLD_SIZE,
       Config.WORLD_SIZE,
       Config.WORLD_RESOLUTION - 1,
       Config.WORLD_RESOLUTION - 1
     );
 
-    const material = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(0.84, 0.77, 0.55),
+    const material = new MeshStandardMaterial({
+      color: new Color(0.84, 0.77, 0.55),
       flatShading: true,
+      transparent: true,
+      opacity: 0.5,
       // wireframe: true,
     });
 
@@ -25,28 +38,82 @@ export default class Terrain extends THREE.Mesh {
 
     const data = this.generateHeight(Config.WORLD_RESOLUTION);
 
-    geometry.rotateX(-Math.PI / 2);
-
-    const stepSize = (Config.WORLD_SIZE / Config.WORLD_RESOLUTION) * 0.5;
+    this.geometry.rotateX(-Math.PI / 2);
 
     for (let i = 0; i < geometry.attributes.position.count; i++) {
-      geometry.attributes.position.setXYZ(
-        i,
-        geometry.attributes.position.getX(i) + Math.random() * 5,
-        data[i] * 10,
-        geometry.attributes.position.getZ(i) + Math.random() * 5
-      );
+      this.geometry.attributes.position.setY(i, data[i] * 10);
     }
 
     this.layers.enable(10);
 
-    // const modifier = new SimplifyModifier();
-    // this.geometry = modifier.modify(
-    //   geometry,
-    //   geometry.attributes.position.count * 0.5
-    // );
+    const modifier = new SimplifyModifier();
+    this.geometry = modifier.modify(
+      this.geometry,
+      this.geometry.attributes.position.count * 0.5
+    );
+
+    this.geometry.computeVertexNormals();
 
     this.addDebugFields();
+  }
+
+  getHelpers() {
+    const helper = new VertexNormalsHelper(this, 5, 0x00ff00);
+    Debug.addMesh(helper);
+
+    return helper;
+  }
+
+  getNavMesh() {
+    const geometry = this.geometry.clone();
+
+    const newIndex = [];
+    const index = geometry.index.array;
+
+    const vertex = new Vector3();
+    const normal = new Vector3();
+    const up = new Vector3(0, 1, 0);
+
+    for (let i = 0; i < geometry.index.count; i += 3) {
+      vertex.fromBufferAttribute(geometry.attributes.position, index[i]);
+      normal.fromBufferAttribute(geometry.attributes.normal, index[i]);
+
+      const angle = normal.dot(up);
+
+      if (angle > 0.8 && vertex.y > 8) {
+        newIndex.push(index[i]);
+        newIndex.push(index[i + 1]);
+        newIndex.push(index[i + 2]);
+      }
+    }
+
+    geometry.setIndex(new BufferAttribute(new Uint16Array(newIndex), 1));
+
+    const wireframeMaterial = new MeshStandardMaterial({
+      color: new Color(1, 0, 0),
+      flatShading: true,
+      wireframe: true,
+      opacity: 0.3,
+      transparent: true,
+    });
+
+    const surfaceMaterial = new MeshStandardMaterial({
+      color: new Color(1, 0, 0),
+      flatShading: true,
+      opacity: 0.05,
+      transparent: true,
+    });
+
+    const mesh = new Mesh(geometry, wireframeMaterial);
+    const fillMesh = new Mesh(geometry, surfaceMaterial);
+
+    mesh.position.setY(2);
+
+    mesh.add(fillMesh);
+
+    Debug.addMesh(mesh);
+
+    return mesh;
   }
 
   addDebugFields() {
@@ -65,11 +132,12 @@ export default class Terrain extends THREE.Mesh {
 
     let quality = 1;
 
-    const peakCenter = new THREE.Vector2(
+    const peakCenter = new Vector2(
       Math.random() * width,
       Math.random() * width
     );
-    const worldCenter = new THREE.Vector2(width / 2, width / 2);
+
+    const worldCenter = new Vector2(width / 2, width / 2);
 
     for (let j = 0; j < 4; j++) {
       for (let i = 0; i < size; i++) {
@@ -84,11 +152,7 @@ export default class Terrain extends THREE.Mesh {
       quality *= 3;
     }
 
-    function randomBetween(min: number, max: number) {
-      return Math.floor(Math.random() * (max - min + 1) + min);
-    }
-
-    const targetHeight = randomBetween(
+    const targetHeight = MathUtils.randInt(
       Config.WORLD_HEIGHT * 0.5,
       Config.WORLD_HEIGHT * 1.5
     );
@@ -96,19 +160,18 @@ export default class Terrain extends THREE.Mesh {
     const frequencyY = 3;
     const offsetX = Math.random() * 1000;
     const offsetY = Math.random() * 1000;
-    const amplitude = randomBetween(8, 12);
+    const amplitude = MathUtils.randInt(8, 12);
 
     for (let i = 0; i < size; i++) {
       const x = i % width;
       const y = ~~(i / width);
 
-      const point = new THREE.Vector2(x, y);
+      const point = new Vector2(x, y);
 
       let distance = point.distanceTo(worldCenter);
       let peakDistance = point.distanceTo(peakCenter);
 
       const normalisedDistance = distance / width;
-      const normalisedPeakDistance = peakDistance / width;
 
       // Wobble the edges to make it less circular
       distance +=
@@ -119,11 +182,9 @@ export default class Terrain extends THREE.Mesh {
 
       distance = distance / width;
 
-      const minLand = 0.2 - Easing.smoothStep(0.4, 0.5, distance);
+      const minLand = 0.2 - MathUtils.smoothstep(distance, 0.4, 0.5);
 
       const mask = minLand + Easing.easeInOutCubic(1 - distance * 3.5);
-
-      // data[i] = Math.max(mask * targetHeight, 0);
 
       data[i] *= Math.max(mask, 0);
     }

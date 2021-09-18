@@ -1,3 +1,4 @@
 https://www.blockbench.net/
 https://mugen87.github.io/yuka/
 https://github.com/donmccurdy/three-pathfinding
+https://discourse.threejs.org/t/csg-with-buffergeometry-three-r125/23735

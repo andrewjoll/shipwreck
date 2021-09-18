@@ -4,11 +4,13 @@ import {
   Scene,
   Vector2,
   Vector3,
-  BoxGeometry,
-  MeshBasicMaterial,
   Mesh,
+  ConeGeometry,
+  MeshNormalMaterial,
 } from 'three';
 import Debug from './helpers/Debug';
+
+import Event from './helpers/Event';
 
 export default class Mouse {
   position: Vector2;
@@ -17,11 +19,15 @@ export default class Mouse {
   rayCaster: Raycaster;
   scene: Scene;
   worldCursor: Mesh;
+  terrain: Mesh;
+  isOnTerrain: boolean;
 
-  constructor(scene: Scene) {
+  constructor(scene: Scene, terrain: Mesh) {
     this.position = new Vector2();
     this.worldPosition = new Vector3();
     this.normalizedPosition = new Vector2();
+    this.terrain = terrain;
+    this.isOnTerrain = false;
 
     this.rayCaster = new Raycaster();
     this.rayCaster.layers.set(10);
@@ -29,6 +35,7 @@ export default class Mouse {
     this.scene = scene;
 
     window.addEventListener('mousemove', this.handleMouseMove.bind(this));
+    document.addEventListener('click', this.handleMouseClick.bind(this));
 
     this.createWorldCursor();
 
@@ -46,15 +53,27 @@ export default class Mouse {
     folder.addMonitor(this.worldPosition, 'x', { label: 'World X' });
     folder.addMonitor(this.worldPosition, 'y', { label: 'World Y' });
     folder.addMonitor(this.worldPosition, 'z', { label: 'World Z' });
+    folder.addMonitor(this, 'isOnTerrain', {
+      label: 'On NavMesh',
+    });
   }
 
   createWorldCursor() {
-    const geometry = new BoxGeometry(2, 10, 2);
-    const material = new MeshBasicMaterial({ color: 0x00ff00 });
-    this.worldCursor = new Mesh(geometry, material);
+    const geometryHelper = new ConeGeometry(5, 20, 3);
+    geometryHelper.translate(0, -10, 0);
+    geometryHelper.rotateX(Math.PI / 2);
+    geometryHelper.rotateY(-Math.PI);
 
-    this.worldCursor.position.set(0, 200, 0);
+    this.worldCursor = new Mesh(geometryHelper, new MeshNormalMaterial());
     this.scene.add(this.worldCursor);
+  }
+
+  handleMouseClick(event: MouseEvent) {
+    if (this.isOnTerrain) {
+      Event.emit('terrain:click', {
+        position: this.worldPosition.clone(),
+      });
+    }
   }
 
   handleMouseMove(event: MouseEvent) {
@@ -66,15 +85,24 @@ export default class Mouse {
     );
   }
 
-  update(scene: Scene, camera: Camera) {
+  update(camera: Camera) {
     this.rayCaster.setFromCamera(this.normalizedPosition, camera);
-    const intersects = this.rayCaster.intersectObjects(scene.children);
+    const intersects = this.rayCaster.intersectObject(this.terrain);
 
     if (intersects.length) {
-      const { point } = intersects[0];
+      this.isOnTerrain = true;
+
+      const { point, face } = intersects[0];
 
       this.worldPosition.set(point.x, point.y, point.z);
-      this.worldCursor.position.set(point.x, point.y + 5, point.z);
+
+      const normal = face.normal.clone();
+      this.worldCursor.position.copy(point);
+      this.worldCursor.lookAt(normal.add(point));
+    } else {
+      this.isOnTerrain = false;
+
+      this.worldCursor.lookAt(this.worldPosition.add(new Vector3(0, 100, 0)));
     }
   }
 
