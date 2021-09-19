@@ -1,20 +1,28 @@
 import {
+  BufferAttribute,
   BufferGeometry,
+  Color,
   ConeGeometry,
+  Float32BufferAttribute,
   Line,
   LineBasicMaterial,
   Mesh,
+  MeshBasicMaterial,
   MeshNormalMaterial,
+  MeshStandardMaterial,
   Object3D,
+  PlaneBufferGeometry,
+  PlaneGeometry,
   Points,
   PointsMaterial,
   Scene,
+  Texture,
   Vector3,
 } from 'three';
 import { Pane } from 'tweakpane';
 
 class Debug {
-  debugMode: boolean = true;
+  debugMode: boolean = false;
   debugObjects: Object3D[] = [];
   pane: Pane;
   scene: Scene;
@@ -62,6 +70,19 @@ class Debug {
     this.scene.add(marker);
 
     this.markers.push(marker);
+  }
+
+  addTexture(texture: Texture) {
+    const geometry = new PlaneGeometry(2048, 2048, 1, 1);
+
+    const material = new MeshStandardMaterial({
+      color: new Color(1, 1, 1),
+      map: texture,
+    });
+
+    const mesh = new Mesh(geometry, material);
+    mesh.position.set(0, 1024, -2048);
+    this.scene.add(mesh);
   }
 
   addPath(points: Vector3[]) {

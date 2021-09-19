@@ -18,6 +18,15 @@ module.exports = {
         test: /\.(jpe?g|png|gif|svg)$/i,
         use: ['url-loader?limit=10000', 'img-loader'],
       },
+      {
+        test: /\.glsl$/,
+        use: {
+          loader: 'raw-loader',
+          options: {
+            esModule: false,
+          },
+        },
+      },
     ],
   },
   resolve: {

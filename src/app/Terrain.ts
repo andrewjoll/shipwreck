@@ -1,8 +1,8 @@
-import * as THREE from 'three';
 import Config from './Config';
 import { SimplifyModifier } from 'three/examples/jsm/modifiers/SimplifyModifier';
 import { ImprovedNoise } from 'three/examples/jsm/math/ImprovedNoise';
 import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper';
+import * as Material from './helpers/Material';
 
 import * as Easing from './helpers/Easing';
 import Debug from './helpers/Debug';
@@ -26,13 +26,7 @@ export default class Terrain extends Mesh {
       Config.WORLD_RESOLUTION - 1
     );
 
-    const material = new MeshStandardMaterial({
-      color: new Color(0.84, 0.77, 0.55),
-      flatShading: true,
-      transparent: true,
-      opacity: 0.5,
-      // wireframe: true,
-    });
+    const material = Material.TerrainMain();
 
     super(geometry, material);
 
@@ -41,20 +35,18 @@ export default class Terrain extends Mesh {
     this.geometry.rotateX(-Math.PI / 2);
 
     for (let i = 0; i < geometry.attributes.position.count; i++) {
-      this.geometry.attributes.position.setY(i, data[i] * 10);
+      this.geometry.attributes.position.setY(i, data[i]);
     }
 
     this.layers.enable(10);
 
-    const modifier = new SimplifyModifier();
-    this.geometry = modifier.modify(
-      this.geometry,
-      this.geometry.attributes.position.count * 0.5
-    );
+    // const modifier = new SimplifyModifier();
+    // this.geometry = modifier.modify(
+    //   this.geometry,
+    //   this.geometry.attributes.position.count * 0.5
+    // );
 
     this.geometry.computeVertexNormals();
-
-    this.addDebugFields();
   }
 
   getHelpers() {
@@ -80,7 +72,7 @@ export default class Terrain extends Mesh {
 
       const angle = normal.dot(up);
 
-      if (angle > 0.8 && vertex.y > 8) {
+      if (angle > 0.8 && vertex.y > 5) {
         newIndex.push(index[i]);
         newIndex.push(index[i + 1]);
         newIndex.push(index[i + 2]);
@@ -116,14 +108,6 @@ export default class Terrain extends Mesh {
     return mesh;
   }
 
-  addDebugFields() {
-    const folder = Debug.addFolder('Terrain');
-
-    folder.addMonitor(this.geometry.attributes.position, 'count', {
-      label: 'Vertices',
-    });
-  }
-
   generateHeight(width: number) {
     const size = width * width;
     const data = new Float32Array(size);
@@ -131,11 +115,6 @@ export default class Terrain extends Mesh {
     const z = Math.random() * 100;
 
     let quality = 1;
-
-    const peakCenter = new Vector2(
-      Math.random() * width,
-      Math.random() * width
-    );
 
     const worldCenter = new Vector2(width / 2, width / 2);
 
@@ -156,6 +135,7 @@ export default class Terrain extends Mesh {
       Config.WORLD_HEIGHT * 0.5,
       Config.WORLD_HEIGHT * 1.5
     );
+
     const frequencyX = 3;
     const frequencyY = 3;
     const offsetX = Math.random() * 1000;
@@ -169,7 +149,6 @@ export default class Terrain extends Mesh {
       const point = new Vector2(x, y);
 
       let distance = point.distanceTo(worldCenter);
-      let peakDistance = point.distanceTo(peakCenter);
 
       const normalisedDistance = distance / width;
 

@@ -3,6 +3,7 @@ import './scss/index.scss';
 import * as THREE from 'three';
 import Debug from './app/helpers/Debug';
 import Event from './app/helpers/Event';
+import { renderDepth } from './app/helpers/Terrain';
 import { Pathfinding } from 'three-pathfinding';
 import Renderer from './app/Renderer';
 import Camera from './app/Camera';
@@ -21,6 +22,8 @@ Debug.setScene(scene);
 
 const terrain = new Terrain();
 scene.add(terrain);
+
+const depthTexture = renderDepth(terrain, renderer);
 
 const navMesh = terrain.getNavMesh();
 
@@ -59,7 +62,7 @@ Event.on('terrain:click', (event) => {
 const pathfinding = new Pathfinding();
 pathfinding.setZoneData('island', Pathfinding.createZone(navMesh.geometry));
 
-const water = new Water();
+const water = new Water(depthTexture);
 scene.add(water);
 
 const hemiLight = new THREE.HemisphereLight(0xfcffd1, 0xa8a08e, 0.5);
@@ -72,7 +75,9 @@ scene.add(light);
 
 const controls = new Controls(camera, renderer.domElement);
 
-const update = () => {
+// Debug.addTexture(depthTexture);
+
+const update = (time: number) => {
   requestAnimationFrame(update);
 
   renderer.preRender();
@@ -80,9 +85,11 @@ const update = () => {
   controls.update();
   mouse.update(camera);
 
+  water.update(time);
+
   renderer.render(scene, camera);
 
   renderer.postRender();
 };
 
-update();
+update(0);

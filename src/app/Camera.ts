@@ -4,7 +4,7 @@ export default class Camera extends THREE.PerspectiveCamera {
   renderer: THREE.Renderer;
 
   constructor(renderer: THREE.Renderer) {
-    super(75, 1.0, 0.1, 10000);
+    super(75, 1.0, 0.1, 2048);
 
     this.renderer = renderer;
 

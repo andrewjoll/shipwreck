@@ -18,6 +18,6 @@ export default class Scene extends THREE.Scene {
       new THREE.Color(0x999999)
     );
 
-    this.add(grid);
+    // this.add(grid);
   }
 }
