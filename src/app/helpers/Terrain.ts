@@ -9,8 +9,8 @@ import {
   WebGLRenderTarget,
 } from 'three';
 
-import Config from '../Config';
-import * as Material from './Material';
+import Config from '@/Config';
+import * as Material from '@helpers/Material';
 
 export const renderDepth = (
   terrain: Mesh,

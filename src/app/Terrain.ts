@@ -1,11 +1,11 @@
-import Config from './Config';
+import Config from '@/Config';
 import { SimplifyModifier } from 'three/examples/jsm/modifiers/SimplifyModifier';
 import { ImprovedNoise } from 'three/examples/jsm/math/ImprovedNoise';
 import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHelper';
-import * as Material from './helpers/Material';
+import * as Material from '@helpers/Material';
 
-import * as Easing from './helpers/Easing';
-import Debug from './helpers/Debug';
+import * as Easing from '@helpers/Easing';
+import Debug from '@helpers/Debug';
 import {
   BufferAttribute,
   Color,
@@ -40,11 +40,11 @@ export default class Terrain extends Mesh {
 
     this.layers.enable(10);
 
-    // const modifier = new SimplifyModifier();
-    // this.geometry = modifier.modify(
-    //   this.geometry,
-    //   this.geometry.attributes.position.count * 0.5
-    // );
+    const modifier = new SimplifyModifier();
+    this.geometry = modifier.modify(
+      this.geometry,
+      this.geometry.attributes.position.count * 0.5
+    );
 
     this.geometry.computeVertexNormals();
   }

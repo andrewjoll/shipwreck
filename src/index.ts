@@ -1,37 +1,22 @@
 import './scss/index.scss';
+import { loadManifest } from '@helpers/Loader';
+import Game from '@/Game';
 
-import * as THREE from 'three';
-import Debug from './app/helpers/Debug';
-import Event from './app/helpers/Event';
-import { renderDepth } from './app/helpers/Terrain';
-import { Pathfinding } from 'three-pathfinding';
-import Renderer from './app/Renderer';
-import Camera from './app/Camera';
-import Scene from './app/Scene';
-import Controls from './app/Controls';
-import Terrain from './app/Terrain';
-import Water from './app/Water';
-import Mouse from './app/Mouse';
+import manifest from './manifest';
 
-const renderer = new Renderer();
+const init = async () => {
+  await loadManifest(manifest);
 
-const camera = new Camera(renderer);
-const scene = new Scene();
+  const game = new Game();
 
-Debug.setScene(scene);
+  game.init();
 
-const terrain = new Terrain();
-scene.add(terrain);
+  game.start();
+};
 
-const depthTexture = renderDepth(terrain, renderer);
+init();
 
-const navMesh = terrain.getNavMesh();
-
-scene.add(navMesh);
-scene.add(terrain.getHelpers());
-
-const mouse = new Mouse(scene, terrain);
-
+/*
 let clickLocations: THREE.Vector3[] = [];
 
 Event.on('terrain:click', (event) => {
@@ -73,23 +58,4 @@ const light = new THREE.DirectionalLight(0xffffff, 0.5);
 light.position.set(100, 100, 100);
 scene.add(light);
 
-const controls = new Controls(camera, renderer.domElement);
-
-// Debug.addTexture(depthTexture);
-
-const update = (time: number) => {
-  requestAnimationFrame(update);
-
-  renderer.preRender();
-
-  controls.update();
-  mouse.update(camera);
-
-  water.update(time);
-
-  renderer.render(scene, camera);
-
-  renderer.postRender();
-};
-
-update(0);
+*/

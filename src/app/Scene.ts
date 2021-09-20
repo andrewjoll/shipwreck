@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import Config from './Config';
+import Config from '@/Config';
 
 export default class Scene extends THREE.Scene {
   constructor() {

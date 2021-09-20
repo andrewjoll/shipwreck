@@ -1,8 +1,14 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const path = require('path');
 
 module.exports = {
-  entry: './src/index.ts',
+  context: path.resolve(__dirname, 'src'),
+  entry: './index.ts',
+  resolve: {
+    extensions: ['.ts', '.js'],
+    plugins: [new TsconfigPathsPlugin()],
+  },
   module: {
     rules: [
       {
@@ -29,16 +35,13 @@ module.exports = {
       },
     ],
   },
-  resolve: {
-    extensions: ['.ts', '.js'],
-  },
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html',
+      template: './index.html',
     }),
   ],
   devServer: {

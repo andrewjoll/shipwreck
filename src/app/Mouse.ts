@@ -8,9 +8,9 @@ import {
   ConeGeometry,
   MeshNormalMaterial,
 } from 'three';
-import Debug from './helpers/Debug';
 
-import Event from './helpers/Event';
+import Debug from '@helpers/Debug';
+import Event from '@helpers/Event';
 
 export default class Mouse {
   position: Vector2;
@@ -19,15 +19,12 @@ export default class Mouse {
   rayCaster: Raycaster;
   scene: Scene;
   worldCursor: Mesh;
-  terrain: Mesh;
-  isOnTerrain: boolean;
+  isOnTerrain: boolean = false;
 
-  constructor(scene: Scene, terrain: Mesh) {
+  constructor(scene: Scene) {
     this.position = new Vector2();
     this.worldPosition = new Vector3();
     this.normalizedPosition = new Vector2();
-    this.terrain = terrain;
-    this.isOnTerrain = false;
 
     this.rayCaster = new Raycaster();
     this.rayCaster.layers.set(10);
@@ -87,12 +84,12 @@ export default class Mouse {
 
   update(camera: Camera) {
     this.rayCaster.setFromCamera(this.normalizedPosition, camera);
-    const intersects = this.rayCaster.intersectObject(this.terrain);
+    const intersections = this.rayCaster.intersectObjects(this.scene.children);
 
-    if (intersects.length) {
+    if (intersections.length) {
       this.isOnTerrain = true;
 
-      const { point, face } = intersects[0];
+      const { point, face, object, instanceId } = intersections[0];
 
       this.worldPosition.set(point.x, point.y, point.z);
 

@@ -6,7 +6,7 @@ uniform float time;
 varying vec2 vUv;
 varying vec3 vColor;
 varying vec3 vPosition;
-varying vec3 vWorldPosition;
+// varying vec3 vWorldPosition;
 varying vec3 vViewAngle;
 
 vec4 blur(sampler2D image, vec2 uv, vec2 resolution, vec2 direction) {

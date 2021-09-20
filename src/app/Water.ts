@@ -1,14 +1,12 @@
-import * as THREE from 'three';
-import { BufferAttribute, Vector3 } from 'three';
+import { Mesh, PlaneGeometry, ShaderMaterial, Texture } from 'three';
 import Config from './Config';
-import Debug from './helpers/Debug';
 import * as Material from './helpers/Material';
 
-export default class Water extends THREE.Mesh {
-  material: THREE.ShaderMaterial;
+export default class Water extends Mesh {
+  material: ShaderMaterial;
 
-  constructor(terrainDepth: THREE.Texture) {
-    const geometry = new THREE.PlaneGeometry(
+  constructor(terrainDepth: Texture) {
+    const geometry = new PlaneGeometry(
       Config.WATER_SIZE,
       Config.WATER_SIZE,
       Config.WATER_RESOLUTION - 1,

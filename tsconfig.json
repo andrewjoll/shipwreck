@@ -1,12 +1,21 @@
 {
   "compilerOptions": {
-    "outDir": "./dist/",
+    "baseUrl": "src",
+    "outDir": "dist",
     "noImplicitAny": true,
     "module": "es6",
     "target": "es6",
     "allowJs": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "typeRoots": ["./src/types", "./node_modules/@types"]
-  }
+    "typeRoots": ["./src/types", "./node_modules/@types"],
+    "paths": {
+      "@helpers/*": ["./app/helpers/*"],
+      "@managers/*": ["./app/managers/*"],
+      "@/*": ["./app/*"],
+      "@assets/*": ["./assets/*"],
+      "@shaders/*": ["./shaders/*"]
+    }
+  },
+  "include": ["src/**/*"]
 }

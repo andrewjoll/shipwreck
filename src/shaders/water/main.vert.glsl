@@ -1,6 +1,6 @@
 varying vec2 vUv;
 varying vec3 vPosition;
-varying vec3 vWorldPosition;
+// varying vec3 vWorldPosition;
 
 uniform sampler2D terrainDepth;
 uniform float time;
