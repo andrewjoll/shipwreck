@@ -1,10 +1,13 @@
 import Terrain from '@/Terrain';
-import { Mesh, Scene, WebGLRenderer } from 'three';
+import { Mesh, Raycaster, Scene, Vector2, Vector3, WebGLRenderer } from 'three';
 import { renderDepth } from '@helpers/Terrain';
 import Water from '@/Water';
 import { addObjects } from '@helpers/TerrainObject';
+import { Manager } from '@/managers';
+import Game from '@/Game';
+import Config from '@/Config';
 
-class WorldManager {
+class WorldManager implements Manager {
   scene: Scene;
   terrain: Terrain;
   navMesh: Mesh;
@@ -13,13 +16,17 @@ class WorldManager {
 
   isReady: boolean = false;
 
+  rayCaster: Raycaster;
+
   constructor() {}
 
-  init(scene: Scene, renderer: WebGLRenderer) {
+  init(game: Game) {
     console.debug('WorldManager::init');
 
-    this.scene = scene;
-    this.renderer = renderer;
+    this.rayCaster = new Raycaster();
+
+    this.scene = game.scene;
+    this.renderer = game.renderer;
   }
 
   unload() {
@@ -56,6 +63,25 @@ class WorldManager {
     }
 
     this.water.update(time);
+  }
+
+  getHeight(position: Vector3) {
+    if (!this.isReady) {
+      return 0;
+    }
+
+    this.rayCaster.set(
+      new Vector3(position.x, Config.WORLD_HEIGHT * 2, position.z),
+      new Vector3(0, -1, 0)
+    );
+
+    const [intersection] = this.rayCaster.intersectObject(this.terrain);
+
+    if (intersection) {
+      return intersection.point.y;
+    }
+
+    return 0;
   }
 }
 

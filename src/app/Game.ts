@@ -2,6 +2,7 @@ import Camera from '@/Camera';
 import Renderer from '@/Renderer';
 import Scene from '@/Scene';
 import worldManager from '@managers/WorldManager';
+import entityManager from '@managers/EntityManager';
 import Mouse from '@/Mouse';
 import Controls from './Controls';
 
@@ -11,6 +12,9 @@ export default class Game {
   scene: Scene;
   mouse: Mouse;
   controls: Controls;
+
+  lastTime: number = 0;
+  deltaTime: number = 0;
 
   constructor() {}
 
@@ -25,7 +29,8 @@ export default class Game {
     this.mouse = new Mouse(this.scene);
     this.controls = new Controls(this.camera, this.renderer.domElement);
 
-    worldManager.init(this.scene, this.renderer);
+    worldManager.init(this);
+    entityManager.init(this);
 
     this.update(0);
   }
@@ -35,6 +40,9 @@ export default class Game {
   }
 
   update = (time: number) => {
+    this.deltaTime = (time - this.lastTime) / 1000;
+    this.lastTime = time;
+
     requestAnimationFrame(this.update);
 
     this.renderer.preRender();
@@ -43,6 +51,7 @@ export default class Game {
     this.mouse.update(this.camera);
 
     worldManager.update(time);
+    entityManager.update(time, this.deltaTime);
 
     this.renderer.render(this.scene, this.camera);
 
