@@ -4,7 +4,7 @@ varying vec3 vColor;
 varying vec3 vPosition;
 
 void main() {
-    vec3 color = vec3(0.5, 0.5, 0.5);
+    vec3 color = vec3(0.6, 0.6, 0.55);
 
     vec3 xTangent = dFdx(vPosition);
     vec3 yTangent = dFdy(vPosition);

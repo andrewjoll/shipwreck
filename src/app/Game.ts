@@ -5,6 +5,7 @@ import worldManager from '@managers/WorldManager';
 import entityManager from '@managers/EntityManager';
 import Mouse from '@/Mouse';
 import Controls from './Controls';
+import Debug from '@helpers/Debug';
 
 export default class Game {
   renderer: Renderer;
@@ -26,6 +27,8 @@ export default class Game {
     this.camera = new Camera(this.renderer);
     this.scene = new Scene();
 
+    Debug.setScene(this.scene);
+
     this.mouse = new Mouse(this.scene);
     this.controls = new Controls(this.camera, this.renderer.domElement);
 
@@ -37,6 +40,8 @@ export default class Game {
 
   start() {
     worldManager.create();
+
+    entityManager.addPlayer(worldManager.findStartingLocation());
   }
 
   update = (time: number) => {

@@ -91,7 +91,8 @@ export default class Terrain extends Mesh {
 
     const surfaceMaterial = new MeshStandardMaterial({
       color: new Color(1, 0, 0),
-      flatShading: true,
+      // flatShading: true,
+      wireframe: true,
       opacity: 0.05,
       transparent: true,
     });

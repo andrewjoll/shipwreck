@@ -4,4 +4,5 @@ export abstract class System {
   name: string;
 
   abstract update(entities: Entity[], time: number, deltaTime: number): void;
+  abstract init(): void;
 }

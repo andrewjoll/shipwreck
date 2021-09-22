@@ -3,9 +3,8 @@ import { System } from '@/systems';
 import { Manager } from '@/managers';
 import Game from '@/Game';
 import Player from '@/entities/Player';
-import HealthCheck from '@/systems/HealthCheck';
 import Mesh from '@/components/Mesh';
-import { Scene } from 'three';
+import { Scene, Vector3 } from 'three';
 import Movement from '@/systems/Movement';
 
 class EntityManager implements Manager {
@@ -13,18 +12,19 @@ class EntityManager implements Manager {
   protected systems: System[] = [];
 
   protected scene: Scene;
+  protected player: Player;
 
   init(game: Game): void {
     console.debug('EntityManager::init');
 
     this.scene = game.scene;
 
-    const player = new Player();
+    this.addSystem(new Movement());
+  }
 
-    this.add(player);
-
-    this.systems.push(new HealthCheck());
-    this.systems.push(new Movement());
+  addPlayer(startLocation: Vector3): void {
+    this.player = new Player(startLocation);
+    this.addEntity(this.player);
   }
 
   update(time: number, deltaTime: number): void {
@@ -33,12 +33,22 @@ class EntityManager implements Manager {
     });
   }
 
-  add(entity: Entity): void {
+  addSystem(system: System): void {
+    system.init();
+
+    this.systems.push(system);
+  }
+
+  addEntity(entity: Entity): void {
     if (entity.hasComponent(Mesh.name)) {
       this.scene.add(entity.getComponent<Mesh>(Mesh.name));
     }
 
     this.entities.push(entity);
+  }
+
+  getPlayer(): Player {
+    return this.player;
   }
 }
 

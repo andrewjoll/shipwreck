@@ -13,7 +13,7 @@ uniform sampler2D noise;
 void main() {
     vec3 colorSand = vec3(0.84, 0.77, 0.55);
     vec3 colorGrass = vec3(0.3, 0.5, 0.3);
-    vec3 colorRock = vec3(0.5, 0.5, 0.5);
+    vec3 colorRock = vec3(0.6, 0.6, 0.55);
 
     vec4 noiseLookup = texture2D(noise, vUv * 20.0);
     float noiseStep = step(0.5, noiseLookup.g);

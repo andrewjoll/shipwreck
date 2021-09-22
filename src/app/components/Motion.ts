@@ -12,10 +12,12 @@ export default class Motion implements Component {
   path: Vector3[];
   onPath: boolean = false;
   isDirty: boolean = false;
+  stickToGround: boolean;
 
-  constructor(position: Vector3, velocity: number) {
+  constructor(position: Vector3, velocity: number, stickToGround: boolean) {
     this.position = position;
     this.velocity = velocity;
+    this.stickToGround = stickToGround;
   }
 
   setPath(path: Vector3[]): void {
@@ -24,6 +26,11 @@ export default class Motion implements Component {
     if (this.path.length) {
       this.onPath = true;
     }
+  }
+
+  clearPath(): void {
+    this.path = [];
+    this.onPath = false;
   }
 
   shiftPath() {

@@ -4,9 +4,30 @@ import { Entity } from '@/entities';
 import { System } from '@/systems';
 import { Vector3 } from 'three';
 import worldManager from '@managers/WorldManager';
+import entityManager from '@managers/EntityManager';
+import Event from '@helpers/Event';
 
 export default class Movement implements System {
   name: string = 'Movement';
+
+  init(): void {
+    Event.on('terrain:click', (event) => {
+      const player = entityManager.getPlayer();
+
+      const motion = player.getComponent<Motion>(Motion.name);
+      console.debug({ from: motion.position, to: event.position });
+      const path = worldManager.getPath(
+        motion.position.clone(),
+        event.position.clone()
+      );
+
+      if (path.length) {
+        motion.setPath(path);
+      } else {
+        motion.clearPath();
+      }
+    });
+  }
 
   update(entities: Entity[], time: number, deltaTime: number): void {
     entities.forEach((entity) => {
@@ -15,7 +36,7 @@ export default class Movement implements System {
 
         this.moveToGoal(motion, deltaTime);
 
-        // this.snapToGround(motion);
+        this.stickToGround(motion);
 
         this.updateMesh(entity, motion);
       }
@@ -48,6 +69,12 @@ export default class Movement implements System {
     }
   }
 
+  stickToGround(motion: Motion) {
+    if (motion.stickToGround && motion.isDirty) {
+      motion.position.setY(worldManager.getHeight(motion.position));
+    }
+  }
+
   updateMesh(entity: Entity, motion: Motion) {
     if (!motion.isDirty) {
       return;
@@ -56,15 +83,7 @@ export default class Movement implements System {
     if (entity.hasComponent(Mesh.name)) {
       const mesh = entity.getComponent<Mesh>(Mesh.name);
 
-      mesh.position.set(
-        motion.position.x,
-        worldManager.getHeight(motion.position) + 10,
-        motion.position.z
-      );
+      mesh.position.copy(motion.position);
     }
-  }
-
-  snapToGround(motion: Motion): void {
-    motion.position.setY(worldManager.getHeight(motion.position));
   }
 }

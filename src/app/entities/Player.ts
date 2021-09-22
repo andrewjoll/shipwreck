@@ -3,24 +3,25 @@ import Mesh from '@/components/Mesh';
 import Motion from '@/components/Motion';
 import { Entity } from '@/entities';
 import { CylinderGeometry, MeshBasicMaterial, Vector3 } from 'three';
+import Debug from '@helpers/Debug';
 
 export default class Player extends Entity {
-  constructor() {
+  constructor(startLocation: Vector3) {
     super();
 
     this.addComponent(new Health(10));
 
-    const motion = new Motion(new Vector3(0, 150, 0), 30);
-    motion.setPath([
-      new Vector3(150, 150, 150),
-      new Vector3(0, 150, 150),
-      new Vector3(150, 150, 0),
-      new Vector3(0, 150, 0),
-    ]);
-
+    const motion = new Motion(startLocation, 30, true);
     this.addComponent(motion);
 
-    const geometry = new CylinderGeometry(5, 5, 20, 32);
+    const folder = Debug.addFolder('Player');
+    folder.addMonitor(motion.position, 'x');
+    folder.addMonitor(motion.position, 'y');
+    folder.addMonitor(motion.position, 'z');
+
+    const geometry = new CylinderGeometry(5, 5, 20, 8);
+    geometry.translate(0, 10, 0);
+
     const material = new MeshBasicMaterial({ color: 0xffff00 });
     const mesh = new Mesh(geometry, material);
     mesh.position.copy(motion.position);
