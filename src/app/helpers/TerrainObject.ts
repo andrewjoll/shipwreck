@@ -1,10 +1,10 @@
 import {
+  Color,
   ConeGeometry,
   Euler,
   InstancedMesh,
   Matrix4,
   Mesh,
-  MeshStandardMaterial,
   Quaternion,
   Raycaster,
   Scene,
@@ -57,8 +57,6 @@ const addRocks = (scene: Scene, terrain: Mesh) => {
 
 const addRockInstances = (scene: Scene, positions: Vector3[]) => {
   const geometry = new SphereGeometry(5, 5, 4);
-  //   geometry.translate(0, 15, 0);
-
   const material = Material.RockMain();
 
   const mesh = new InstancedMesh(geometry, material, positions.length);
@@ -80,6 +78,10 @@ const addRockInstances = (scene: Scene, positions: Vector3[]) => {
     matrix.compose(positions[i], quaternion, scale);
 
     mesh.setMatrixAt(i, matrix);
+    mesh.setColorAt(
+      i,
+      new Color(randFloat(0.95, 1), randFloat(0.95, 1), randFloat(0.95, 1))
+    );
   }
 
   scene.add(mesh);

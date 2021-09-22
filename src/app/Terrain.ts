@@ -13,6 +13,7 @@ import {
   Mesh,
   MeshStandardMaterial,
   PlaneGeometry,
+  Triangle,
   Vector2,
   Vector3,
 } from 'three';
@@ -61,18 +62,35 @@ export default class Terrain extends Mesh {
 
     const newIndex = [];
     const index = geometry.index.array;
+    const positions = geometry.attributes.position.array;
+    const vertices = [];
+
+    for (let i = 0; i < positions.length; i += 3) {
+      vertices.push(
+        new Vector3(positions[i], positions[i + 1], positions[i + 2])
+      );
+    }
 
     const vertex = new Vector3();
     const normal = new Vector3();
-    const up = new Vector3(0, 1, 0);
+    const triangle = new Triangle();
 
     for (let i = 0; i < geometry.index.count; i += 3) {
       vertex.fromBufferAttribute(geometry.attributes.position, index[i]);
-      normal.fromBufferAttribute(geometry.attributes.normal, index[i]);
+      // normal.fromBufferAttribute(geometry.attributes.normal, index[i]);
 
-      const angle = normal.dot(up);
+      triangle.setFromPointsAndIndices(
+        vertices,
+        index[i],
+        index[i + 1],
+        index[i + 2]
+      );
 
-      if (angle > 0.8 && vertex.y > 5) {
+      triangle.getNormal(normal);
+
+      const angle = Math.acos(Config.UP.dot(normal));
+
+      if (angle < 0.8 && vertex.y >= Config.WATER_HEIGHT - 2) {
         newIndex.push(index[i]);
         newIndex.push(index[i + 1]);
         newIndex.push(index[i + 2]);

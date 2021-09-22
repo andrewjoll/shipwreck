@@ -87,24 +87,26 @@ class WorldManager implements Manager {
   findStartingLocation(): Vector3 {
     const divisionsPerCycle = 24;
     let radius = Config.WORLD_SIZE * Config.WORLD_LAND_SCALE;
-    const radiusStep = 50;
+    const radiusStep = radius / 10;
     const up = new Vector3(0, 1, 0);
+    const circumfrenceStep = (Math.PI * 2) / divisionsPerCycle;
 
     while (radius > 100) {
       for (let i = 0; i < divisionsPerCycle; i++) {
         const position = new Vector3(
-          Math.sin(((Math.PI * 2) / divisionsPerCycle) * i) * radius,
+          Math.sin(circumfrenceStep * i) * radius,
           0,
-          Math.cos(((Math.PI * 2) / divisionsPerCycle) * i) * radius
+          Math.cos(circumfrenceStep * i) * radius
         );
 
         const intersection = this.getIntersection(position);
+        const pathGroup = this.getGroup(position);
 
         const height = intersection.point.y;
         const angle = intersection.face.normal.dot(up);
 
-        // Find a nice flat spot near the water
-        if (height > Config.WATER_HEIGHT && angle > 0.9) {
+        // Find a nice flat spot near the water, on the main pathfinding mesh
+        if (height > Config.WATER_HEIGHT && angle > 0.9 && pathGroup === 0) {
           position.y = height;
           return position;
         }
@@ -114,8 +116,6 @@ class WorldManager implements Manager {
     }
 
     throw new Error("Couldn't find a starting location");
-
-    return new Vector3(0, 0, 0);
   }
 
   getGroup(position: Vector3): number | null {

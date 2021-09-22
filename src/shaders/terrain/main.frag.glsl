@@ -24,12 +24,11 @@ void main() {
     // dist = smoothstep(0.45, 0.5, dist);
     dist = smoothstep(0.1, waterHeight, vPosition.y);
     
-    float slope = dot(vNormal, up);
+    float slope = acos(dot(up, vNormal));
 
     vec3 color = colorGrass;
 
-    float rockMix = 1.0 - smoothstep(0.7, 0.8, slope);
-    rockMix = step(0.5, rockMix);
+    float rockMix = step(0.8, slope);
 
     float sandMix = smoothstep(0.0, grassHeight, vPosition.y);
     sandMix = 1.0 - step(0.7, sandMix);

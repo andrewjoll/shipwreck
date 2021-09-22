@@ -7,10 +7,12 @@ import {
   Mesh,
   ConeGeometry,
   MeshNormalMaterial,
+  MathUtils,
 } from 'three';
 
 import Debug from '@helpers/Debug';
 import Event from '@helpers/Event';
+import Config from './Config';
 
 export default class Mouse {
   position: Vector2;
@@ -20,6 +22,7 @@ export default class Mouse {
   scene: Scene;
   worldCursor: Mesh;
   isOnTerrain: boolean = false;
+  slope: number = 0;
 
   constructor(scene: Scene) {
     this.position = new Vector2();
@@ -51,7 +54,11 @@ export default class Mouse {
     folder.addMonitor(this.worldPosition, 'y', { label: 'World Y' });
     folder.addMonitor(this.worldPosition, 'z', { label: 'World Z' });
     folder.addMonitor(this, 'isOnTerrain', {
-      label: 'On NavMesh',
+      label: 'NavMesh',
+    });
+
+    folder.addMonitor(this, 'slope', {
+      label: 'Slope',
     });
   }
 
@@ -94,6 +101,9 @@ export default class Mouse {
       this.worldPosition.set(point.x, point.y, point.z);
 
       const normal = face.normal.clone();
+
+      this.slope = MathUtils.radToDeg(Math.acos(Config.UP.dot(normal)));
+
       this.worldCursor.position.copy(point);
       this.worldCursor.lookAt(normal.add(point));
     } else {

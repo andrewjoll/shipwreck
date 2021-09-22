@@ -1,5 +1,5 @@
-varying vec2 vUv;
-varying vec3 vColor;
+// varying vec2 vUv;
+// varying vec3 vColor;
 // varying vec3 vNormal;
 varying vec3 vPosition;
 
@@ -11,8 +11,6 @@ void main() {
     vec3 faceNormal = normalize(cross(xTangent, yTangent));
 
     vec3 lightDirection = vec3(0.2, 1.0, 0.2);
-    // float lightIntensity = dot(lightDirection, vNormal);
-
     float lightIntensity = dot(lightDirection, faceNormal);
     lightIntensity = 0.5 + (lightIntensity * 0.5);
 
