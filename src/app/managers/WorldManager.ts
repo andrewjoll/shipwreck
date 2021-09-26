@@ -168,6 +168,16 @@ class WorldManager implements Manager {
     return 0;
   }
 
+  getNormal(position: Vector3): Vector3 {
+    const intersection = this.getIntersection(position);
+
+    if (intersection) {
+      return intersection.face.normal;
+    }
+
+    return new Vector3(0, 0, 0);
+  }
+
   getIntersection(position: Vector3): Intersection | null {
     this.rayCaster.set(
       new Vector3(position.x, Config.WORLD_HEIGHT * 2, position.z),

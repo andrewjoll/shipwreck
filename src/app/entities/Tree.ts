@@ -7,5 +7,6 @@ export default class Tree extends Entity {
     super();
 
     this.addComponent(new InstancedMesh(index, mesh));
+    this.setPositionProvider(InstancedMesh.name);
   }
 }

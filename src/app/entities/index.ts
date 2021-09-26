@@ -1,8 +1,10 @@
-import { Component, ComponentList } from '@/components';
-import { MathUtils } from 'three';
+import { Component, ComponentList, PositionProvider } from '@/components';
+import { MathUtils, Vector3 } from 'three';
 
 export abstract class Entity {
   protected components: ComponentList = {};
+  protected positionProvider: Component;
+
   uuid: string;
 
   constructor() {
@@ -37,5 +39,13 @@ export abstract class Entity {
 
   hasComponent(name: string): boolean {
     return this.components.hasOwnProperty(name);
+  }
+
+  setPositionProvider(name: string): void {
+    this.positionProvider = this.getComponent(name);
+  }
+
+  getPosition(): Vector3 {
+    return this.positionProvider.getPosition();
   }
 }

@@ -17,6 +17,8 @@ import {
 import Debug from '@helpers/Debug';
 import Event from '@helpers/Event';
 import Config from './Config';
+import EntityHelper from '@helpers/EntityHelper';
+import { Entity } from './entities';
 
 export default class Mouse {
   position: Vector2;
@@ -32,6 +34,7 @@ export default class Mouse {
   selectionObject: Object3D;
   selectionInstancedId: number;
   selectionUuid: string;
+  selectionEntity: Entity | null;
 
   constructor(scene: Scene) {
     this.position = new Vector2();
@@ -85,11 +88,16 @@ export default class Mouse {
   }
 
   handleMouseClick(event: MouseEvent) {
-    if (this.isOnTerrain) {
-      Event.emit('terrain:click', {
-        position: this.worldPosition.clone(),
+    if (this.selectionEntity) {
+      Event.emit('entity:click', {
+        entity: this.selectionEntity,
       });
     }
+    // } else {
+    //   Event.emit('player:moveTo', {
+    //     position: this.worldPosition.clone(),
+    //   });
+    // }
   }
 
   handleMouseMove(event: MouseEvent) {
@@ -106,6 +114,7 @@ export default class Mouse {
 
     this.selectionObject = object;
     this.selectionInstancedId = instanceId;
+    this.selectionEntity = EntityHelper.getEntityFromObject(object, instanceId);
 
     this.selectionBox.setFromObject(object);
     this.selectionBox.visible = true;
@@ -136,6 +145,7 @@ export default class Mouse {
     this.selectionObject = null;
     this.selectionInstancedId = null;
     this.selectionBox.visible = false;
+    this.selectionEntity = null;
   }
 
   update(camera: Camera) {

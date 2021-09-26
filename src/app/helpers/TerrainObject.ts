@@ -17,8 +17,9 @@ import {
   Vector3,
 } from 'three';
 import { randFloat, randInt } from 'three/src/math/MathUtils';
-import Config from '../Config';
-import * as Material from './Material';
+import Config from '@/Config';
+import * as Material from '@helpers/Material';
+import EntityHelper from '@helpers/EntityHelper';
 
 export const addObjects = (scene: Scene, terrain: Mesh): Entity[] => {
   addRocks(scene, terrain);
@@ -160,6 +161,7 @@ const fillTreeCluster = (
   const step = diameter / rows;
 
   const treePoints: Vector3[] = [];
+  const treeNormals: Vector3[] = [];
 
   for (let x = 0; x < rows; x++) {
     for (let z = 0; z < rows; z++) {
@@ -180,16 +182,21 @@ const fillTreeCluster = (
 
           if (intersection.point.y > Config.GRASS_HEIGHT && angle > 0.8) {
             treePoints.push(intersection.point);
+            treeNormals.push(intersection.face.normal);
           }
         }
       }
     }
   }
 
-  return addTreeInstances(scene, treePoints);
+  return addTreeInstances(scene, treePoints, treeNormals);
 };
 
-const addTreeInstances = (scene: Scene, positions: Vector3[]): Tree[] => {
+const addTreeInstances = (
+  scene: Scene,
+  positions: Vector3[],
+  normals: Vector3[]
+): Tree[] => {
   const trees: Tree[] = [];
 
   const geometry = new ConeGeometry(5, 20, 5);
@@ -198,6 +205,9 @@ const addTreeInstances = (scene: Scene, positions: Vector3[]): Tree[] => {
   const material = Material.TreeMain(false);
 
   const mesh = new InstancedMesh(geometry, material, positions.length);
+  mesh.userData = {
+    entities: [],
+  };
 
   // Trunk
   const trunkGeometry = new CylinderGeometry(1.5, 1.5, 10, 4, 1);
@@ -220,7 +230,14 @@ const addTreeInstances = (scene: Scene, positions: Vector3[]): Tree[] => {
 
   for (let i = 0; i < positions.length; i++) {
     rotation.y = Math.random() * 2 * Math.PI;
-    quaternion.setFromEuler(rotation);
+
+    // Orient the tree towards the surface normal, for nicer falling animation
+    // todo: refactor
+    setDirection(normals[i], quaternion);
+    quaternion.setFromAxisAngle(new Vector3(0, 0, 1), 0);
+    quaternion.setFromAxisAngle(new Vector3(1, 0, 0), 0);
+
+    // quaternion.setFromEuler(rotation);
 
     scale.x = scale.z = randFloat(0.8, 1.0);
     scale.y = randFloat(0.5, 1.0);
@@ -230,7 +247,10 @@ const addTreeInstances = (scene: Scene, positions: Vector3[]): Tree[] => {
     mesh.setMatrixAt(i, matrix);
     trunkMesh.setMatrixAt(i, matrix);
 
-    trees.push(new Tree(i, mesh));
+    const tree = new Tree(i, mesh);
+    EntityHelper.setObjectEntity(mesh, tree, i);
+
+    trees.push(tree);
   }
 
   mesh.layers.enable(Config.LAYER_PICKABLE);
@@ -240,4 +260,19 @@ const addTreeInstances = (scene: Scene, positions: Vector3[]): Tree[] => {
   // trunkMesh.instanceMatrix.needsUpdate = true;
 
   return trees;
+};
+
+const setDirection = (normal: Vector3, quaternion: Quaternion) => {
+  const axis = new Vector3();
+
+  // vector is assumed to be normalized
+  if (normal.y > 0.99999) {
+    quaternion.set(0, 0, 0, 1);
+  } else if (normal.y < -0.99999) {
+    quaternion.set(1, 0, 0, 0);
+  } else {
+    axis.set(normal.z, 0, -normal.x).normalize();
+    const radians = Math.acos(normal.y);
+    quaternion.setFromAxisAngle(axis, radians);
+  }
 };

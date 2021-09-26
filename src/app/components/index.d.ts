@@ -1,4 +1,5 @@
 import { Entity } from '@/entities';
+import { Vector3 } from 'three';
 
 interface Component {
   entity: Entity;
@@ -8,3 +9,7 @@ interface Component {
 type ComponentList = {
   [key: string]: Component;
 };
+
+interface PositionProvider {
+  getPosition: () => Vector3;
+}

@@ -13,6 +13,7 @@ export default class Player extends Entity {
 
     const motion = new Motion(startLocation, 30, true);
     this.addComponent(motion);
+    this.setPositionProvider(Motion.name);
 
     const folder = Debug.addFolder('Player');
     folder.addMonitor(motion.position, 'x');
@@ -22,7 +23,11 @@ export default class Player extends Entity {
     const geometry = new CylinderGeometry(5, 5, 20, 8);
     geometry.translate(0, 10, 0);
 
-    const material = new MeshBasicMaterial({ color: 0xffff00 });
+    const material = new MeshBasicMaterial({
+      color: 0xffff00,
+      transparent: true,
+      opacity: 0.5,
+    });
     const mesh = new Mesh(geometry, material);
     mesh.position.copy(motion.position);
 

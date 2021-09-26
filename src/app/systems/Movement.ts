@@ -6,16 +6,48 @@ import { Vector3 } from 'three';
 import worldManager from '@managers/WorldManager';
 import entityManager from '@managers/EntityManager';
 import Event from '@helpers/Event';
+import InstancedMesh from '@/components/InstancedMesh';
+
+type MoveEvent = {
+  position: Vector3;
+};
+
+type EntityEvent = {
+  entity: Entity;
+};
 
 export default class Movement implements System {
   name: string = 'Movement';
 
   init(): void {
-    Event.on('terrain:click', (event) => {
+    Event.on('entity:click', (event: EntityEvent) => {
+      const { entity } = event;
+
+      // todo: determine if we want to move toward this entity
       const player = entityManager.getPlayer();
 
       const motion = player.getComponent<Motion>(Motion.name);
-      console.debug({ from: motion.position, to: event.position });
+      motion.setTarget(event.entity);
+
+      console.debug(entity.getPosition());
+
+      // todo: handle other position types
+      const path = worldManager.getPath(
+        motion.position.clone(),
+        entity.getPosition()
+      );
+
+      if (path.length) {
+        motion.setPath(path);
+      } else {
+        motion.clearPath();
+      }
+    });
+
+    Event.on('player:moveTo', (event: MoveEvent) => {
+      const player = entityManager.getPlayer();
+
+      const motion = player.getComponent<Motion>(Motion.name);
       const path = worldManager.getPath(
         motion.position.clone(),
         event.position.clone()
@@ -64,6 +96,20 @@ export default class Movement implements System {
 
         if (!motion.path.length) {
           console.debug('Movement::moveToGoal', 'end of path');
+
+          if (motion.targetEntity) {
+            const distanceToTarget = motion.position.distanceTo(
+              motion.targetEntity.getPosition()
+            );
+
+            if (distanceToTarget < 1) {
+              console.debug('Movement::moveToGoal', 'target reached');
+
+              Event.emit('player:targetReached', {
+                target: motion.targetEntity,
+              });
+            }
+          }
         }
       }
     }

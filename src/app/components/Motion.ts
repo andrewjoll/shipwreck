@@ -1,12 +1,13 @@
 import { Entity } from '@/entities';
-import { Component } from '@/components';
+import { Component, PositionProvider } from '@/components';
 import { Vector3 } from 'three';
 
-export default class Motion implements Component {
+export default class Motion implements Component, PositionProvider {
   entity: Entity;
   name: string = 'Motion';
   position: Vector3;
   target: Vector3;
+  targetEntity: Entity;
   velocity: number;
 
   path: Vector3[];
@@ -20,12 +21,20 @@ export default class Motion implements Component {
     this.stickToGround = stickToGround;
   }
 
+  getPosition(): Vector3 {
+    return this.position;
+  }
+
   setPath(path: Vector3[]): void {
     this.path = path;
 
     if (this.path.length) {
       this.onPath = true;
     }
+  }
+
+  setTarget(entity: Entity): void {
+    this.targetEntity = entity;
   }
 
   clearPath(): void {
