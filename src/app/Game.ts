@@ -41,6 +41,7 @@ export default class Game {
   start() {
     worldManager.create();
 
+    entityManager.addEntities(worldManager.addEntities());
     entityManager.addPlayer(worldManager.findStartingLocation());
   }
 

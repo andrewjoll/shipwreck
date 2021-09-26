@@ -1,7 +1,11 @@
-// varying vec2 vUv;
-// varying vec3 vColor;
-// varying vec3 vNormal;
+precision mediump float;
+
+// in vec2 vUv;
+// in vec3 vColor;
+varying vec3 vNormal;
 varying vec3 vPosition;
+
+varying vec4 diffuseColor;
 
 void main() {
     vec3 color = vec3(0.6, 0.6, 0.55);

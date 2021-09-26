@@ -1,10 +1,14 @@
+import { Entity } from '@/entities';
+import Tree from '@/entities/Tree';
 import {
   Color,
   ConeGeometry,
+  CylinderGeometry,
   Euler,
   InstancedMesh,
   Matrix4,
   Mesh,
+  MeshBasicMaterial,
   Quaternion,
   Raycaster,
   Scene,
@@ -16,9 +20,10 @@ import { randFloat, randInt } from 'three/src/math/MathUtils';
 import Config from '../Config';
 import * as Material from './Material';
 
-export const addObjects = (scene: Scene, terrain: Mesh) => {
-  addTreeClusters(scene, terrain);
+export const addObjects = (scene: Scene, terrain: Mesh): Entity[] => {
   addRocks(scene, terrain);
+
+  return addTreeClusters(scene, terrain);
 };
 
 const addRocks = (scene: Scene, terrain: Mesh) => {
@@ -87,7 +92,9 @@ const addRockInstances = (scene: Scene, positions: Vector3[]) => {
   scene.add(mesh);
 };
 
-const addTreeClusters = (scene: Scene, terrain: Mesh) => {
+const addTreeClusters = (scene: Scene, terrain: Mesh): Tree[] => {
+  const trees: Tree[] = [];
+
   const rayCaster = new Raycaster();
   const rayDirection = new Vector3(0, -1, 0);
 
@@ -132,11 +139,17 @@ const addTreeClusters = (scene: Scene, terrain: Mesh) => {
   }
 
   spheres.forEach((sphere) => {
-    fillTreeCluster(scene, terrain, sphere);
+    trees.push(...fillTreeCluster(scene, terrain, sphere));
   });
+
+  return trees;
 };
 
-const fillTreeCluster = (scene: Scene, terrain: Mesh, sphere: Sphere) => {
+const fillTreeCluster = (
+  scene: Scene,
+  terrain: Mesh,
+  sphere: Sphere
+): Tree[] => {
   const rayCaster = new Raycaster();
   const rayDirection = new Vector3(0, -1, 0);
   const up = new Vector3(0, 1, 0);
@@ -173,16 +186,32 @@ const fillTreeCluster = (scene: Scene, terrain: Mesh, sphere: Sphere) => {
     }
   }
 
-  addTreeInstances(scene, treePoints);
+  return addTreeInstances(scene, treePoints);
 };
 
-const addTreeInstances = (scene: Scene, positions: Vector3[]) => {
+const addTreeInstances = (scene: Scene, positions: Vector3[]): Tree[] => {
+  const trees: Tree[] = [];
+
   const geometry = new ConeGeometry(5, 20, 5);
   geometry.translate(0, 15, 0);
 
-  const material = Material.TreeMain();
+  const material = Material.TreeMain(false);
 
   const mesh = new InstancedMesh(geometry, material, positions.length);
+
+  // Trunk
+  const trunkGeometry = new CylinderGeometry(1.5, 1.5, 10, 4, 1);
+  trunkGeometry.translate(0, 5, 0);
+
+  const trunkMaterial = Material.TreeMain(true);
+  const trunkMesh = new InstancedMesh(
+    trunkGeometry,
+    trunkMaterial,
+    positions.length
+  );
+  mesh.add(trunkMesh);
+
+  // Trunk end
 
   const matrix = new Matrix4();
   const rotation = new Euler();
@@ -193,14 +222,22 @@ const addTreeInstances = (scene: Scene, positions: Vector3[]) => {
     rotation.y = Math.random() * 2 * Math.PI;
     quaternion.setFromEuler(rotation);
 
-    scale.x = scale.y = scale.z = randFloat(0.5, 1.0);
+    scale.x = scale.z = randFloat(0.8, 1.0);
+    scale.y = randFloat(0.5, 1.0);
 
     matrix.compose(positions[i], quaternion, scale);
 
     mesh.setMatrixAt(i, matrix);
+    trunkMesh.setMatrixAt(i, matrix);
+
+    trees.push(new Tree(i, mesh));
   }
 
-  mesh.layers.enable(10);
+  mesh.layers.enable(Config.LAYER_PICKABLE);
 
   scene.add(mesh);
+
+  // trunkMesh.instanceMatrix.needsUpdate = true;
+
+  return trees;
 };

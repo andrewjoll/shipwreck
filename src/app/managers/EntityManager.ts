@@ -6,6 +6,7 @@ import Player from '@/entities/Player';
 import Mesh from '@/components/Mesh';
 import { Scene, Vector3 } from 'three';
 import Movement from '@/systems/Movement';
+import InstanceAnimator from '@/systems/InstanceAnimator';
 
 class EntityManager implements Manager {
   protected entities: Entity[] = [];
@@ -20,6 +21,7 @@ class EntityManager implements Manager {
     this.scene = game.scene;
 
     this.addSystem(new Movement());
+    this.addSystem(new InstanceAnimator());
   }
 
   addPlayer(startLocation: Vector3): void {
@@ -45,6 +47,10 @@ class EntityManager implements Manager {
     }
 
     this.entities.push(entity);
+  }
+
+  addEntities(entities: Entity[]): void {
+    entities.forEach((entity) => this.addEntity(entity));
   }
 
   getPlayer(): Player {

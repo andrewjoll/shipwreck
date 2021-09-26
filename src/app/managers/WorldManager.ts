@@ -14,6 +14,7 @@ import { Manager } from '@/managers';
 import Game from '@/Game';
 import Config from '@/Config';
 import { Pathfinding } from 'three-pathfinding';
+import Sky from '@/Sky';
 
 class WorldManager implements Manager {
   scene: Scene;
@@ -21,6 +22,7 @@ class WorldManager implements Manager {
   navMesh: Mesh;
   renderer: WebGLRenderer;
   water: Water;
+  sky: Sky;
 
   isReady: boolean = false;
 
@@ -69,11 +71,18 @@ class WorldManager implements Manager {
     this.water = new Water(depthTexture);
     this.scene.add(this.water);
 
-    addObjects(this.scene, this.terrain);
+    // this.sky = new Sky();
+    // this.scene.add(this.sky);
 
     this.isReady = true;
+  }
 
-    this.findStartingLocation();
+  addEntities() {
+    const entities = addObjects(this.scene, this.terrain);
+
+    console.debug({ entities });
+
+    return entities;
   }
 
   update(time: number) {

@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 import Config from '@/Config';
+import { Color } from 'three';
 
 export default class Scene extends THREE.Scene {
   constructor() {
     super();
 
-    this.background = new THREE.Color(0x888888);
+    this.background = new THREE.Color(0.25, 0.55, 0.71);
 
     this.createGrid();
   }

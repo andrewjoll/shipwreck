@@ -1,4 +1,11 @@
-import { RepeatWrapping, ShaderMaterial, Texture } from 'three';
+import {
+  BackSide,
+  ClampToEdgeWrapping,
+  Color,
+  RepeatWrapping,
+  ShaderMaterial,
+  Texture,
+} from 'three';
 import Config from '@/Config';
 import { getAsset } from '@helpers/Loader';
 
@@ -34,6 +41,10 @@ export const TerrainMain = (): ShaderMaterial => {
     },
     vertexShader: require('@shaders/terrain/main.vert.glsl'),
     fragmentShader: require('@shaders/terrain/main.frag.glsl'),
+    extensions: {
+      derivatives: true,
+    },
+    // glslVersion: GLSL3,
   });
 
   material.uniforms.noise.value.wrapS = RepeatWrapping;
@@ -45,10 +56,17 @@ export const TerrainMain = (): ShaderMaterial => {
 export const WaterMain = (terrainDepth: Texture): ShaderMaterial => {
   const material = new ShaderMaterial({
     transparent: true,
+    // depthWrite: false,
     // wireframe: true,
     uniforms: {
       waterHeight: {
         value: Config.WATER_HEIGHT,
+      },
+      waterSize: {
+        value: Config.WATER_SIZE,
+      },
+      worldSize: {
+        value: Config.WORLD_SIZE,
       },
       time: {
         value: 0,
@@ -67,13 +85,35 @@ export const WaterMain = (terrainDepth: Texture): ShaderMaterial => {
   material.uniforms.noise.value.wrapS = RepeatWrapping;
   material.uniforms.noise.value.wrapT = RepeatWrapping;
 
+  material.uniforms.terrainDepth.value.wrapS = ClampToEdgeWrapping;
+  material.uniforms.terrainDepth.value.wrapT = ClampToEdgeWrapping;
+
   return material;
 };
 
-export const TreeMain = (): ShaderMaterial => {
+export const SkyMain = (): ShaderMaterial => {
+  const material = new ShaderMaterial({
+    transparent: false,
+    side: BackSide,
+    depthWrite: true,
+    uniforms: {},
+    vertexShader: require('@shaders/sky/main.vert.glsl'),
+    fragmentShader: require('@shaders/sky/main.frag.glsl'),
+  });
+
+  return material;
+};
+
+export const TreeMain = (isTrunk: boolean): ShaderMaterial => {
   const material = new ShaderMaterial({
     // wireframe: true,
-    uniforms: {},
+    uniforms: {
+      color: {
+        value: isTrunk
+          ? new Color(78 / 255, 60 / 255, 51 / 255)
+          : new Color(0.3, 0.5, 0.3),
+      },
+    },
     vertexShader: require('@shaders/tree/main.vert.glsl'),
     fragmentShader: require('@shaders/tree/main.frag.glsl'),
   });
@@ -87,6 +127,10 @@ export const RockMain = (): ShaderMaterial => {
     uniforms: {},
     vertexShader: require('@shaders/rock/main.vert.glsl'),
     fragmentShader: require('@shaders/rock/main.frag.glsl'),
+    extensions: {
+      derivatives: true,
+    },
+    // glslVersion: GLSL3,
   });
 
   return material;

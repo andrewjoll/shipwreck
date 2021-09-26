@@ -39,7 +39,7 @@ export default class Terrain extends Mesh {
       this.geometry.attributes.position.setY(i, data[i]);
     }
 
-    this.layers.enable(10);
+    this.layers.enable(Config.LAYER_PICKABLE);
 
     const modifier = new SimplifyModifier();
     this.geometry = modifier.modify(
@@ -90,7 +90,7 @@ export default class Terrain extends Mesh {
 
       const angle = Math.acos(Config.UP.dot(normal));
 
-      if (angle < 0.8 && vertex.y >= Config.WATER_HEIGHT - 2) {
+      if (angle < 0.8 /* && vertex.y >= Config.WATER_HEIGHT */) {
         newIndex.push(index[i]);
         newIndex.push(index[i + 1]);
         newIndex.push(index[i + 2]);

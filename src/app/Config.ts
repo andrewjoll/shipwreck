@@ -15,4 +15,6 @@ export default {
 
   UP: new Vector3(0, 1, 0),
   DOWN: new Vector3(0, -1, 0),
+
+  LAYER_PICKABLE: 10,
 };

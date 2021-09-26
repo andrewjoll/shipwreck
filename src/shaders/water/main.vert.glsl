@@ -15,14 +15,14 @@ void main() {
     float amplitude = 6.0;
     float frequency = 10.0;
 
-    float waveOffset = sin((position.x * frequency) + (time * 0.1)) * cos((position.z * frequency) + (time * 0.1)) * amplitude;
+    // float waveOffset = sin((position.x * frequency) + (time * 0.1)) * cos((position.z * frequency) + (time * 0.1)) * amplitude;
 
     vec3 transformed = vec3(position);
 
-    float dist = distance(vPosition, vec3(0.0, 8.0, 0.0)) / 2048.0;
-    dist = smoothstep(0.2, 0.3, dist);
+    // float dist = distance(vPosition, vec3(0.0, 8.0, 0.0)) / 2048.0;
+    // dist = smoothstep(0.2, 0.3, dist);
 
-    transformed.y = (waveOffset * (1.0 - depthLookup.b)) * dist;
+    // transformed.y = (waveOffset * (1.0 - depthLookup.b)) * dist;
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
 }

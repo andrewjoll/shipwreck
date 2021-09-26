@@ -9,8 +9,8 @@ export default class Water extends Mesh {
     const geometry = new PlaneGeometry(
       Config.WATER_SIZE,
       Config.WATER_SIZE,
-      Config.WATER_RESOLUTION - 1,
-      Config.WATER_RESOLUTION - 1
+      1,
+      1
     );
 
     const material = Material.WaterMain(terrainDepth);

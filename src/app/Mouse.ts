@@ -7,7 +7,11 @@ import {
   Mesh,
   ConeGeometry,
   MeshNormalMaterial,
-  MathUtils,
+  InstancedMesh,
+  BoxHelper,
+  Matrix4,
+  Quaternion,
+  Object3D,
 } from 'three';
 
 import Debug from '@helpers/Debug';
@@ -24,13 +28,18 @@ export default class Mouse {
   isOnTerrain: boolean = false;
   slope: number = 0;
 
+  selectionBox: BoxHelper;
+  selectionObject: Object3D;
+  selectionInstancedId: number;
+  selectionUuid: string;
+
   constructor(scene: Scene) {
     this.position = new Vector2();
     this.worldPosition = new Vector3();
     this.normalizedPosition = new Vector2();
 
     this.rayCaster = new Raycaster();
-    this.rayCaster.layers.set(10);
+    this.rayCaster.layers.set(Config.LAYER_PICKABLE);
 
     this.scene = scene;
 
@@ -70,6 +79,9 @@ export default class Mouse {
 
     this.worldCursor = new Mesh(geometryHelper, new MeshNormalMaterial());
     this.scene.add(this.worldCursor);
+
+    this.selectionBox = new BoxHelper(this.worldCursor);
+    this.scene.add(this.selectionBox);
   }
 
   handleMouseClick(event: MouseEvent) {
@@ -89,25 +101,68 @@ export default class Mouse {
     );
   }
 
+  setSelection(object: Object3D, instanceId: number): void {
+    this.selectionUuid = object.uuid;
+
+    this.selectionObject = object;
+    this.selectionInstancedId = instanceId;
+
+    this.selectionBox.setFromObject(object);
+    this.selectionBox.visible = true;
+
+    if (instanceId !== undefined) {
+      const matrix = new Matrix4();
+      const translation = new Vector3();
+      const scale = new Vector3();
+      const rotation = new Quaternion();
+      (object as InstancedMesh).getMatrixAt(instanceId, matrix);
+      matrix.decompose(translation, rotation, scale);
+
+      this.selectionBox.position.copy(translation);
+      this.selectionBox.scale.copy(scale);
+      this.selectionBox.rotation.setFromQuaternion(rotation);
+    } else {
+      this.selectionBox.position.copy(object.position);
+      this.selectionBox.scale.copy(object.scale);
+      this.selectionBox.rotation.setFromQuaternion(
+        new Quaternion().setFromEuler(object.rotation)
+      );
+    }
+
+    this.selectionBox.updateMatrix();
+  }
+
+  clearSelection(): void {
+    this.selectionObject = null;
+    this.selectionInstancedId = null;
+    this.selectionBox.visible = false;
+  }
+
   update(camera: Camera) {
     this.rayCaster.setFromCamera(this.normalizedPosition, camera);
     const intersections = this.rayCaster.intersectObjects(this.scene.children);
 
     if (intersections.length) {
-      this.isOnTerrain = true;
+      this.isOnTerrain = true; // @todo: not entirely correct
 
       const { point, face, object, instanceId } = intersections[0];
+
+      if (object.uuid !== this.selectionUuid) {
+        this.setSelection(object, instanceId);
+      }
 
       this.worldPosition.set(point.x, point.y, point.z);
 
       const normal = face.normal.clone();
 
-      this.slope = MathUtils.radToDeg(Math.acos(Config.UP.dot(normal)));
+      this.slope = Math.acos(Config.UP.dot(normal));
 
       this.worldCursor.position.copy(point);
       this.worldCursor.lookAt(normal.add(point));
     } else {
       this.isOnTerrain = false;
+
+      this.clearSelection();
 
       this.worldCursor.lookAt(this.worldPosition.add(new Vector3(0, 100, 0)));
     }

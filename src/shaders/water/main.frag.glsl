@@ -1,6 +1,8 @@
 uniform sampler2D terrainDepth;
 uniform sampler2D noise;
 uniform float waterHeight;
+uniform float worldSize;
+uniform float waterSize;
 uniform float time;
 
 varying vec2 vUv;
@@ -32,8 +34,14 @@ float sineBetween(float min, float max, float t) {
 void main() {
     vec3 color = vec3(0.25, 0.55, 0.71);
 
+    float fogNear = 512.0;
+    float fogFar = 2048.0;
+    float depth = gl_FragCoord.z / gl_FragCoord.w;
+    float fogFactor = smoothstep(fogNear, fogFar, depth);
+    vec3 fogColor = vec3(0.25, 0.55, 0.71);
+
     // Position terrain in centre of water
-    vec2 uv = (vUv * 2.0) - 0.5;
+    vec2 uv = (vUv * (waterSize / worldSize)) + ((waterSize/worldSize) * -0.5) + 0.5;
 
     vec4 noiseLookup = texture2D(noise, vUv * 10.0 + vec2(sin(time * 0.005), cos(time * 0.005)));
 
@@ -51,17 +59,25 @@ void main() {
 
     float heightDelta = vPosition.y / waterHeight;
 
-    float dist = distance(vPosition, vec3(0.0, 8.0, 0.0)) / 2048.0;
-    dist = smoothstep(0.15, 0.25, dist);
+    float dist = distance(vPosition, vec3(0.0, 8.0, 0.0)) / (worldSize * 0.5);
+    bool outerEdge = dist > 2.0;
+
+    // dist = smoothstep(0.15, 0.25, dist);
 
     float peaks = step(sineBetween(0.5, 0.6, time * 0.1), shoreFalloff) * 0.1;
 
-    float alpha = (0.95 - shoreFalloff) * (dist * 0.5);
+    // float alpha = (0.95 - shoreFalloff) * (dist * 0.5);
 
     float wave = dist + sin(vPosition.x / 128.0);// * cos(vPosition.z / 128.0);
+
+    color += peaks;
+
+    color = mix( color, fogColor, fogFactor );
+
+    float alpha = outerEdge ? 0.0 : dist;
 
     // gl_FragColor = vec4(shoreFalloff, shoreFalloff, shoreFalloff, 1.0);
     // gl_FragColor = vec4(peaks, peaks, peaks, 1.0);
     // gl_FragColor = vec4(color + peaks, 0.5);
-    gl_FragColor = vec4(color + peaks, 0.5 + (dist * 0.5));
+    gl_FragColor = vec4(color, alpha); //outerEdge ? 0.0 : 0.5 + (dist * 0.5));
 }
