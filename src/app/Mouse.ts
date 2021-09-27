@@ -56,6 +56,7 @@ export default class Mouse {
 
   addDebugFields() {
     const folder = Debug.addFolder('Mouse');
+    folder.expanded = false;
 
     folder.addMonitor(this.position, 'x', { label: 'Screen X' });
     folder.addMonitor(this.position, 'y', { label: 'Screen Y' });

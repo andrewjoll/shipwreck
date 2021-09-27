@@ -3,7 +3,7 @@ import { MathUtils, Vector3 } from 'three';
 
 export abstract class Entity {
   protected components: ComponentList = {};
-  protected positionProvider: Component;
+  protected positionProvider: PositionProvider;
 
   uuid: string;
 

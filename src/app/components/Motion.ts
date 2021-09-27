@@ -1,8 +1,8 @@
 import { Entity } from '@/entities';
-import { Component, PositionProvider } from '@/components';
+import { PositionProvider } from '@/components';
 import { Vector3 } from 'three';
 
-export default class Motion implements Component, PositionProvider {
+export default class Motion implements PositionProvider {
   entity: Entity;
   name: string = 'Motion';
   position: Vector3;

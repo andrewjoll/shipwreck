@@ -10,6 +10,6 @@ type ComponentList = {
   [key: string]: Component;
 };
 
-interface PositionProvider {
+interface PositionProvider extends Component {
   getPosition: () => Vector3;
 }

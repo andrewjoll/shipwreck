@@ -3,16 +3,14 @@ import Renderer from '@/Renderer';
 import Scene from '@/Scene';
 import worldManager from '@managers/WorldManager';
 import entityManager from '@managers/EntityManager';
+import cameraManager from '@managers/CameraManager';
 import Mouse from '@/Mouse';
-import Controls from './Controls';
 import Debug from '@helpers/Debug';
 
 export default class Game {
   renderer: Renderer;
-  camera: Camera;
   scene: Scene;
   mouse: Mouse;
-  controls: Controls;
 
   lastTime: number = 0;
   deltaTime: number = 0;
@@ -24,16 +22,15 @@ export default class Game {
 
     this.renderer = new Renderer();
 
-    this.camera = new Camera(this.renderer);
     this.scene = new Scene();
 
     Debug.setScene(this.scene);
 
     this.mouse = new Mouse(this.scene);
-    this.controls = new Controls(this.camera, this.renderer.domElement);
 
     worldManager.init(this);
     entityManager.init(this);
+    cameraManager.init(this);
 
     this.update(0);
   }
@@ -53,13 +50,13 @@ export default class Game {
 
     this.renderer.preRender();
 
-    this.controls.update();
-    this.mouse.update(this.camera);
+    this.mouse.update(cameraManager.getActiveCamera());
 
     worldManager.update(time);
     entityManager.update(time, this.deltaTime);
+    cameraManager.update(time, this.deltaTime);
 
-    this.renderer.render(this.scene, this.camera);
+    this.renderer.render(this.scene, cameraManager.getActiveCamera());
 
     this.renderer.postRender();
   };

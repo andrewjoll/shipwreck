@@ -1,8 +1,8 @@
 import { Entity } from '@/entities';
-import { Component, PositionProvider } from '@/components';
-import { Matrix4, Quaternion, Vector3 } from 'three';
+import { PositionProvider } from '@/components';
+import { Matrix4, Vector3 } from 'three';
 
-export default class InstancedMesh implements Component, PositionProvider {
+export default class InstancedMesh implements PositionProvider {
   entity: Entity;
   name: string = 'InstancedMesh';
   index: number;
