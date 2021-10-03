@@ -40,6 +40,7 @@ export default class Game {
 
     entityManager.addEntities(worldManager.addEntities());
     entityManager.addPlayer(worldManager.findStartingLocation());
+    cameraManager.start();
   }
 
   update = (time: number) => {

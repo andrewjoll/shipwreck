@@ -90,6 +90,8 @@ const addRockInstances = (scene: Scene, positions: Vector3[]) => {
     );
   }
 
+  mesh.layers.enable(Config.LAYER_PICKABLE);
+
   scene.add(mesh);
 };
 

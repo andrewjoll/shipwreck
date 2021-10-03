@@ -93,12 +93,14 @@ export default class Mouse {
       Event.emit('entity:click', {
         entity: this.selectionEntity,
       });
+    } else if (
+      this.isOnTerrain &&
+      this.worldPosition.y >= Config.WATER_HEIGHT - 2
+    ) {
+      Event.emit('player:moveTo', {
+        position: this.worldPosition.clone(),
+      });
     }
-    // } else {
-    //   Event.emit('player:moveTo', {
-    //     position: this.worldPosition.clone(),
-    //   });
-    // }
   }
 
   handleMouseMove(event: MouseEvent) {
@@ -159,6 +161,7 @@ export default class Mouse {
       const { point, face, object, instanceId } = intersections[0];
 
       if (object.uuid !== this.selectionUuid) {
+        console.debug({ object });
         this.setSelection(object, instanceId);
       }
 

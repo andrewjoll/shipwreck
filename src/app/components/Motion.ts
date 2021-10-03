@@ -6,18 +6,20 @@ export default class Motion implements PositionProvider {
   entity: Entity;
   name: string = 'Motion';
   position: Vector3;
+  velocity: Vector3;
   target: Vector3;
   targetEntity: Entity;
-  velocity: number;
+  speed: number;
 
   path: Vector3[];
   onPath: boolean = false;
   isDirty: boolean = false;
   stickToGround: boolean;
 
-  constructor(position: Vector3, velocity: number, stickToGround: boolean) {
+  constructor(position: Vector3, speed: number, stickToGround: boolean) {
+    this.velocity = new Vector3(0, 0, 0);
     this.position = position;
-    this.velocity = velocity;
+    this.speed = speed;
     this.stickToGround = stickToGround;
   }
 

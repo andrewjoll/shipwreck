@@ -76,6 +76,8 @@ export default class Movement implements System {
   }
 
   moveToGoal(motion: Motion, deltaTime: number): void {
+    const startPosition = motion.position.clone();
+
     if (motion.onPath && motion.path.length) {
       const nextGoal = motion.path[0];
 
@@ -86,9 +88,11 @@ export default class Movement implements System {
           .copy(nextGoal)
           .sub(motion.position)
           .normalize()
-          .multiplyScalar(motion.velocity * deltaTime);
+          .multiplyScalar(motion.speed * deltaTime);
 
         motion.position.add(step);
+        motion.velocity.subVectors(startPosition, nextGoal).normalize();
+
         motion.isDirty = true;
       } else {
         console.debug('Movement::moveToGoal', 'Reached goal', nextGoal);

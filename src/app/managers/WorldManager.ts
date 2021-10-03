@@ -2,6 +2,7 @@ import Terrain from '@/Terrain';
 import {
   Intersection,
   Mesh,
+  Object3D,
   Raycaster,
   Scene,
   Vector3,
@@ -187,6 +188,10 @@ class WorldManager implements Manager {
     const [intersection] = this.rayCaster.intersectObject(this.terrain);
 
     return intersection;
+  }
+
+  directionToCentre(position: Vector3): Vector3 {
+    return new Vector3().subVectors(position, new Vector3(0, 0, 0)).normalize();
   }
 }
 
