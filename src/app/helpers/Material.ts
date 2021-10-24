@@ -2,15 +2,16 @@ import {
   BackSide,
   ClampToEdgeWrapping,
   Color,
-  RepeatWrapping,
   ShaderMaterial,
   Texture,
+  Vector2,
 } from 'three';
 import Config from '@/Config';
 import { getAsset } from '@helpers/Loader';
 
 export const TerrainDepth = new ShaderMaterial({
   vertexColors: true,
+  transparent: true,
   // wireframe: true,
   uniforms: {
     waterHeight: {
@@ -19,24 +20,40 @@ export const TerrainDepth = new ShaderMaterial({
     worldHeight: {
       value: Config.WORLD_HEIGHT,
     },
+    grassHeight: {
+      value: Config.GRASS_HEIGHT,
+    },
   },
   vertexShader: require('@shaders/terrain/depth.vert.glsl'),
-  fragmentShader: require('@shaders/terrain/depth.frag.glsl'),
+  fragmentShader: require('@shaders/terrain/depth2.frag.glsl'),
 });
 
-export const TerrainMain = (): ShaderMaterial => {
+export const TerrainMain = (depthMap: Texture = null): ShaderMaterial => {
   const material = new ShaderMaterial({
-    transparent: false,
+    // transparent: true,
+    // depthWrite: false,
     // wireframe: true,
     uniforms: {
       waterHeight: {
         value: Config.WATER_HEIGHT,
       },
+      worldSize: {
+        value: Config.WORLD_SIZE,
+      },
+      worldHeight: {
+        value: Config.WORLD_HEIGHT,
+      },
       grassHeight: {
         value: Config.GRASS_HEIGHT,
       },
-      noise: {
-        value: getAsset('noise'),
+      // noise: {
+      //   value: getAsset('noise'),
+      // },
+      // rockNormal: {
+      //   value: getAsset('rockNormal'),
+      // },
+      depthMap: {
+        value: depthMap,
       },
     },
     vertexShader: require('@shaders/terrain/main.vert.glsl'),
@@ -47,8 +64,8 @@ export const TerrainMain = (): ShaderMaterial => {
     // glslVersion: GLSL3,
   });
 
-  material.uniforms.noise.value.wrapS = RepeatWrapping;
-  material.uniforms.noise.value.wrapT = RepeatWrapping;
+  // material.uniforms.noise.value.wrapS = RepeatWrapping;
+  // material.uniforms.noise.value.wrapT = RepeatWrapping;
 
   return material;
 };
@@ -74,7 +91,7 @@ export const WaterMain = (terrainDepth: Texture): ShaderMaterial => {
       terrainDepth: {
         value: terrainDepth,
       },
-      noise: {
+      noiseMap: {
         value: getAsset('noise'),
       },
     },
@@ -82,8 +99,8 @@ export const WaterMain = (terrainDepth: Texture): ShaderMaterial => {
     fragmentShader: require('@shaders/water/main.frag.glsl'),
   });
 
-  material.uniforms.noise.value.wrapS = RepeatWrapping;
-  material.uniforms.noise.value.wrapT = RepeatWrapping;
+  // material.uniforms.noiseMap.value.wrapS = RepeatWrapping;
+  // material.uniforms.noiseMap.value.wrapT = RepeatWrapping;
 
   material.uniforms.terrainDepth.value.wrapS = ClampToEdgeWrapping;
   material.uniforms.terrainDepth.value.wrapT = ClampToEdgeWrapping;
@@ -131,6 +148,31 @@ export const RockMain = (): ShaderMaterial => {
       derivatives: true,
     },
     // glslVersion: GLSL3,
+  });
+
+  return material;
+};
+
+export const BlurMain = (
+  blurTexture: Texture,
+  resolution: Vector2,
+  direction: Vector2
+): ShaderMaterial => {
+  const material = new ShaderMaterial({
+    uniforms: {
+      blurTexture: {
+        value: blurTexture,
+      },
+      blurDirection: {
+        value: direction,
+      },
+      blurResolution: {
+        value: resolution,
+      },
+    },
+    vertexShader: require('@shaders/blur/main.vert.glsl'),
+    fragmentShader: require('@shaders/blur/main.frag.glsl'),
+    depthWrite: false,
   });
 
   return material;

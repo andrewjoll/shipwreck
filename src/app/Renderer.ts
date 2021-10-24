@@ -1,8 +1,10 @@
-import * as THREE from 'three';
 import Stats from 'stats.js';
+import { WebGLRenderer, Vector2 } from 'three';
 
-export default class Renderer extends THREE.WebGLRenderer {
+export default class Renderer extends WebGLRenderer {
   stats: Stats;
+
+  savedSize: Vector2;
 
   constructor() {
     super({
@@ -10,6 +12,9 @@ export default class Renderer extends THREE.WebGLRenderer {
       antialias: false,
     });
 
+    this.savedSize = new Vector2();
+
+    this.domElement.classList.add('game');
     document.body.appendChild(this.domElement);
 
     this.createStats();
@@ -26,5 +31,13 @@ export default class Renderer extends THREE.WebGLRenderer {
 
   postRender() {
     this.stats.end();
+  }
+
+  saveSize() {
+    this.getSize(this.savedSize);
+  }
+
+  restoreSize() {
+    this.setSize(this.savedSize.width, this.savedSize.height);
   }
 }

@@ -11,8 +11,10 @@ import {
   Color,
   MathUtils,
   Mesh,
+  MeshBasicMaterial,
   MeshStandardMaterial,
   PlaneGeometry,
+  Texture,
   Triangle,
   Vector2,
   Vector3,
@@ -27,7 +29,7 @@ export default class Terrain extends Mesh {
       Config.WORLD_RESOLUTION - 1
     );
 
-    const material = Material.TerrainMain();
+    const material = new MeshBasicMaterial();
 
     super(geometry, material);
 
@@ -48,6 +50,10 @@ export default class Terrain extends Mesh {
     );
 
     this.geometry.computeVertexNormals();
+  }
+
+  init(depthTexture: Texture) {
+    this.material = Material.TerrainMain(depthTexture);
   }
 
   getHelpers() {

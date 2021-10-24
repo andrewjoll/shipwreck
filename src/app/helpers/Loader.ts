@@ -1,11 +1,11 @@
-import { ImageLoader, LoadingManager } from 'three';
+import { LoadingManager, Texture, TextureLoader } from 'three';
 
 const manager = new LoadingManager();
-const loader = new ImageLoader(manager);
+const loader = new TextureLoader(manager);
 
 manager.onProgress = (url, itemsLoaded, itemsTotal) => {
   const percent = Math.round((itemsLoaded / itemsTotal) * 100);
-  console.debug(`Loading ${percent}%`);
+  console.debug(`Loading ${percent}%`, url);
 };
 
 manager.onError = (url: string) => {
@@ -17,7 +17,7 @@ type LoaderManifest = {
 };
 
 type LoaderCache = {
-  [key: string]: HTMLImageElement;
+  [key: string]: Texture;
 };
 
 const loaderCache: LoaderCache = {};

@@ -35,11 +35,18 @@ body {
   }
 }
 
-canvas {
+.game {
   position: fixed;
   top: 0;
   left: 0;
   outline: none;
+}
+
+.preview {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  bottom: 0;
 }
 
 .tp-dfwv {

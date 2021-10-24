@@ -31,8 +31,6 @@ export default class Game {
     worldManager.init(this);
     entityManager.init(this);
     cameraManager.init(this);
-
-    this.update(0);
   }
 
   start() {
@@ -41,6 +39,8 @@ export default class Game {
     entityManager.addEntities(worldManager.addEntities());
     entityManager.addPlayer(worldManager.findStartingLocation());
     cameraManager.start();
+
+    this.update(0);
   }
 
   update = (time: number) => {

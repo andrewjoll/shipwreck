@@ -2,7 +2,9 @@ import Terrain from '@/Terrain';
 import {
   Intersection,
   Mesh,
+  MeshBasicMaterial,
   Object3D,
+  PlaneBufferGeometry,
   Raycaster,
   Scene,
   Vector3,
@@ -16,12 +18,14 @@ import Game from '@/Game';
 import Config from '@/Config';
 import { Pathfinding } from 'three-pathfinding';
 import Sky from '@/Sky';
+import Renderer from '@/Renderer';
+import { TerrainMain } from '@helpers/Material';
 
 class WorldManager implements Manager {
   scene: Scene;
   terrain: Terrain;
   navMesh: Mesh;
-  renderer: WebGLRenderer;
+  renderer: Renderer;
   water: Water;
   sky: Sky;
 
@@ -68,6 +72,8 @@ class WorldManager implements Manager {
     this.scene.add(this.navMesh);
 
     const depthTexture = renderDepth(this.terrain, this.renderer);
+
+    this.terrain.init(depthTexture);
 
     this.water = new Water(depthTexture);
     this.scene.add(this.water);

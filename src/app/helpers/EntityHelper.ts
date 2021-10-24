@@ -6,8 +6,10 @@ export default {
     object: Object3D,
     instanceId: number | undefined = undefined
   ): Entity | null {
-    if (instanceId !== undefined) {
-      return object.userData.entities[instanceId];
+    if (instanceId !== undefined && object.userData?.entities) {
+      if (object.userData.entities.hasOwnProperty(instanceId)) {
+        return object.userData.entities[instanceId];
+      }
     }
 
     return object.userData.entity;

@@ -23,6 +23,6 @@ export default class Water extends Mesh {
   }
 
   update(time: number) {
-    this.material.uniforms.time.value = time / 100;
+    // this.material.uniforms.time.value = time / 100;
   }
 }
